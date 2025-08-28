@@ -12,10 +12,7 @@ services:
       - key: PORT
         value: 4000
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: chatflow-redis
-          property: connectionString
+        sync: false
       - key: AUTH_SERVICE_URL
         fromService:
           type: web
@@ -56,10 +53,7 @@ services:
       - key: MONGODB_URL
         sync: false
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: chatflow-redis
-          property: connectionString
+        sync: false
 
   # Delivery Service
   - type: web
@@ -74,10 +68,7 @@ services:
       - key: PORT
         value: 3003
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: chatflow-redis
-          property: connectionString
+        sync: false
 
   # Presence Service
   - type: web
@@ -92,17 +83,10 @@ services:
       - key: PORT
         value: 3004
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: chatflow-redis
-          property: connectionString
+        sync: false
 
 databases:
   - name: chatflow-postgres
     databaseName: chatflow
     user: chatflow
-    plan: free
-
-  - name: chatflow-redis
-    type: redis
     plan: free
