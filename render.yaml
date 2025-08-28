@@ -5,6 +5,7 @@ services:
     env: node
     buildCommand: cd backend/websocket-gateway && npm install
     startCommand: cd backend/websocket-gateway && npm start
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
@@ -27,6 +28,7 @@ services:
     env: node
     buildCommand: cd backend/auth-service && npm install
     startCommand: cd backend/auth-service && npm start
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
@@ -45,13 +47,14 @@ services:
     env: node
     buildCommand: cd backend/message-service && npm install
     startCommand: cd backend/message-service && npm start
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3002
       - key: MONGODB_URL
-        value: # Add MongoDB Atlas connection string
+        sync: false
       - key: REDIS_URL
         fromService:
           type: redis
@@ -64,6 +67,7 @@ services:
     env: node
     buildCommand: cd backend/delivery-service && npm install
     startCommand: cd backend/delivery-service && npm start
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
@@ -81,6 +85,7 @@ services:
     env: node
     buildCommand: cd backend/presence-service && npm install
     startCommand: cd backend/presence-service && npm start
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
@@ -96,6 +101,8 @@ databases:
   - name: chatflow-postgres
     databaseName: chatflow
     user: chatflow
+    plan: free
 
   - name: chatflow-redis
     type: redis
+    plan: free
