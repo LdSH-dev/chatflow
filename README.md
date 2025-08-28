@@ -112,10 +112,9 @@ NEXT_PUBLIC_MESSAGE_API_URL=http://localhost:3002
 ### Testing the Application
 
 1. **Start the system**: `./start.sh`
-2. **Create test users**: `./create-test-users.sh` (creates 5 demo users)
-3. **Test services**: `./test-services.sh` (optional health check)
-4. **Open browser**: http://localhost:3000
-5. **Login with demo users**: Use credentials from create-test-users.sh output
+2. **Test services**: `./test-services.sh` (optional health check)
+3. **Open browser**: http://localhost:3000
+4. **Register an account**: Register an account using the WebApp
 6. **See real users**: Users will load from database in sidebar
 7. **Chat**: Select users from sidebar and start messaging
 
