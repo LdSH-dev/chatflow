@@ -1,0 +1,101 @@
+services:
+  # WebSocket Gateway
+  - type: web
+    name: chatflow-websocket-gateway
+    env: node
+    buildCommand: cd backend/websocket-gateway && npm install
+    startCommand: cd backend/websocket-gateway && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: chatflow-redis
+          property: connectionString
+      - key: AUTH_SERVICE_URL
+        fromService:
+          type: web
+          name: chatflow-auth-service
+          property: host
+
+  # Auth Service
+  - type: web
+    name: chatflow-auth-service
+    env: node
+    buildCommand: cd backend/auth-service && npm install
+    startCommand: cd backend/auth-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: POSTGRES_URL
+        fromDatabase:
+          name: chatflow-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+  # Message Service
+  - type: web
+    name: chatflow-message-service
+    env: node
+    buildCommand: cd backend/message-service && npm install
+    startCommand: cd backend/message-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+      - key: MONGODB_URL
+        value: # Add MongoDB Atlas connection string
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: chatflow-redis
+          property: connectionString
+
+  # Delivery Service
+  - type: web
+    name: chatflow-delivery-service
+    env: node
+    buildCommand: cd backend/delivery-service && npm install
+    startCommand: cd backend/delivery-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3003
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: chatflow-redis
+          property: connectionString
+
+  # Presence Service
+  - type: web
+    name: chatflow-presence-service
+    env: node
+    buildCommand: cd backend/presence-service && npm install
+    startCommand: cd backend/presence-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3004
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: chatflow-redis
+          property: connectionString
+
+databases:
+  - name: chatflow-postgres
+    databaseName: chatflow
+    user: chatflow
+
+  - name: chatflow-redis
+    type: redis

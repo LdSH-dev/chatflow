@@ -1,0 +1,154 @@
+services:
+  # Databases
+  mongodb:
+    image: mongo:7
+    container_name: chatflow-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: chatflow
+    volumes:
+      - mongodb_data:/data/db
+
+  postgres:
+    image: postgres:15
+    container_name: chatflow-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: chatflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: chatflow-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Backend Services
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    container_name: chatflow-auth-service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - POSTGRES_URL=postgresql://postgres:password@postgres:5432/chatflow
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/auth-service:/app
+      - /app/node_modules
+
+  message-service:
+    build:
+      context: ./backend/message-service
+      dockerfile: Dockerfile
+    container_name: chatflow-message-service
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGODB_URL=mongodb://mongodb:27017/chatflow
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./backend/message-service:/app
+      - /app/node_modules
+
+  delivery-service:
+    build:
+      context: ./backend/delivery-service
+      dockerfile: Dockerfile
+    container_name: chatflow-delivery-service
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    volumes:
+      - ./backend/delivery-service:/app
+      - /app/node_modules
+
+  presence-service:
+    build:
+      context: ./backend/presence-service
+      dockerfile: Dockerfile
+    container_name: chatflow-presence-service
+    restart: always
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    volumes:
+      - ./backend/presence-service:/app
+      - /app/node_modules
+
+  websocket-gateway:
+    build:
+      context: ./backend/websocket-gateway
+      dockerfile: Dockerfile
+    container_name: chatflow-websocket-gateway
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth-service:3001
+    depends_on:
+      - redis
+      - auth-service
+    volumes:
+      - ./backend/websocket-gateway:/app
+      - /app/node_modules
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chatflow-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:4000
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - NEXT_PUBLIC_MESSAGE_API_URL=http://localhost:3002
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  mongodb_data:
+  postgres_data:
+  redis_data:
