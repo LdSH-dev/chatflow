@@ -11,6 +11,7 @@ export interface Message {
   receiverId: number;
   content: string;
   messageType: 'text' | 'image' | 'file';
+  repliedMessageId?: string;
   delivered: boolean;
   read: boolean;
   createdAt: string;
@@ -37,6 +38,7 @@ export interface SocketMessage {
   senderId: number;
   content: string;
   messageType: 'text' | 'image' | 'file';
+  repliedMessageId?: string;
   createdAt: string;
 }
 

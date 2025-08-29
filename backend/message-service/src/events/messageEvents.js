@@ -16,6 +16,7 @@ async function emitMessageCreated(message) {
     receiverId: message.receiverId,
     content: message.content,
     messageType: message.messageType,
+    repliedMessageId: message.repliedMessageId,
     createdAt: message.createdAt
   });
 }

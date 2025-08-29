@@ -86,7 +86,8 @@ class SocketService {
         senderId: user.id,
         receiverId: data.receiverId,
         content: data.content,
-        messageType: data.messageType || 'text'
+        messageType: data.messageType || 'text',
+        repliedMessageId: data.repliedMessageId
       });
     });
     

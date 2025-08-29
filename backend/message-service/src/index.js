@@ -27,13 +27,14 @@ async function handleMessageSend(data) {
   console.log('Processing message send event:', data);
   
   try {
-    const { senderId, receiverId, content, messageType = 'text' } = data;
+    const { senderId, receiverId, content, messageType = 'text', repliedMessageId } = data;
     
     const message = new Message({
       senderId,
       receiverId,
       content,
-      messageType
+      messageType,
+      repliedMessageId
     });
 
     await message.save();
