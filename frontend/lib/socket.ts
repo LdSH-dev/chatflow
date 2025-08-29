@@ -66,12 +66,13 @@ export function disconnectSocket(): void {
 /**
  * Send message via socket
  */
-export function sendMessage(receiverId: number, content: string, messageType: string = 'text'): void {
+export function sendMessage(receiverId: number, content: string, messageType: string = 'text', repliedMessageId?: string): void {
   if (socket) {
     socket.emit('send_message', {
       receiverId,
       content,
-      messageType
+      messageType,
+      repliedMessageId
     });
   }
 }

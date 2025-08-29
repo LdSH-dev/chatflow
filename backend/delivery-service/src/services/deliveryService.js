@@ -26,7 +26,7 @@ class DeliveryService {
   async handleMessageCreated(data) {
     console.log('Processing message created event:', data);
     
-    const { receiverId, messageId, senderId, content, messageType, createdAt } = data;
+    const { receiverId, messageId, senderId, content, messageType, repliedMessageId, createdAt } = data;
     
     // Implementar deduplicação para evitar processamento duplicado
     const { getClient } = require('../utils/redis');
@@ -57,6 +57,7 @@ class DeliveryService {
           senderId,
           content,
           messageType,
+          repliedMessageId,
           createdAt
         }
       });
@@ -86,6 +87,7 @@ class DeliveryService {
           senderId,
           content,
           messageType,
+          repliedMessageId,
           createdAt
         }
       });

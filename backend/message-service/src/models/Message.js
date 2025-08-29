@@ -21,6 +21,11 @@ const messageSchema = new mongoose.Schema({
     enum: ['text', 'image', 'file'],
     default: 'text'
   },
+  repliedMessageId: {
+    type: String,
+    ref: 'Message',
+    index: true
+  },
   delivered: {
     type: Boolean,
     default: false

@@ -6,14 +6,15 @@ const { emitMessageCreated, emitMessageDelivered, emitMessageRead } = require('.
  */
 async function sendMessage(req, res) {
   try {
-    const { receiverId, content, messageType = 'text' } = req.body;
+    const { receiverId, content, messageType = 'text', repliedMessageId } = req.body;
     const senderId = req.user.id;
 
     const message = new Message({
       senderId,
       receiverId,
       content,
-      messageType
+      messageType,
+      repliedMessageId
     });
 
     await message.save();

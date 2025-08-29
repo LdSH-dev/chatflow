@@ -5,6 +5,7 @@ import { Message, SocketMessage, UserStatus } from '@/types';
 import { getConversation } from '@/lib/api';
 import { useSocket } from '@/hooks/useSocket';
 import { useAuth } from '@/hooks/useAuth';
+import { useReply } from '@/hooks/useReply';
 import { requestPresence } from '@/lib/socket';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
@@ -23,6 +24,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
+  const { replyingTo, setReplyingTo, clearReply } = useReply();
 
   const handleNewMessage = (socketMessage: SocketMessage) => {
     // Check if the message is relevant for this conversation
@@ -36,6 +38,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         receiverId: isFromCurrentUser ? receiverId : user?.id || 0,
         content: socketMessage.content,
         messageType: socketMessage.messageType,
+        repliedMessageId: socketMessage.repliedMessageId,
         delivered: true,
         read: false,
         createdAt: socketMessage.createdAt,
@@ -135,6 +138,11 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Function to find replied message
+  const findRepliedMessage = (repliedMessageId: string): Message | null => {
+    return messages.find(msg => msg._id === repliedMessageId) || null;
+  };
+
   useEffect(() => {
     return () => {
       if (typingTimeoutRef.current) {
@@ -177,6 +185,8 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
                 key={message._id}
                 message={message}
                 isOwn={message.senderId === user?.id}
+                onReply={setReplyingTo}
+                repliedMessage={message.repliedMessageId ? findRepliedMessage(message.repliedMessageId) : null}
               />
             ))}
             
@@ -203,6 +213,8 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
       <MessageInput 
         receiverId={receiverId}
         onMessageSent={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        replyingTo={replyingTo}
+        onClearReply={clearReply}
       />
     </div>
   );
