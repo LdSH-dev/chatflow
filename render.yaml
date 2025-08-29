@@ -54,6 +54,17 @@ services:
         sync: false
       - key: REDIS_URL
         sync: false
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: chatflow-auth-service
+          property: envVar
+          envVarKey: JWT_SECRET
+      - key: AUTH_SERVICE_URL
+        fromService:
+          type: web
+          name: chatflow-auth-service
+          property: host
 
   # Delivery Service
   - type: web
