@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { login, register } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { useUsernameValidation } from '@/hooks/useUsernameValidation';
 
 interface AuthFormData {
   username?: string;
@@ -20,8 +21,23 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { updateUser } = useAuth();
+  
+  // Custom hook for username validation
+  const { error: usernameValidationError, validate: validateUsername, clearError: clearUsernameError } = useUsernameValidation();
 
-  const { register: formRegister, handleSubmit, formState: { errors } } = useForm<AuthFormData>();
+  const { register: formRegister, handleSubmit, formState: { errors }, watch, setValue } = useForm<AuthFormData>();
+
+  // Watch username field for real-time validation
+  const watchedUsername = watch('username');
+
+  // Real-time validation handler
+  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setValue('username', value);
+    
+    // Trigger real-time validation
+    validateUsername(value);
+  }, [setValue, validateUsername]);
 
   const onSubmit = async (data: AuthFormData) => {
     setLoading(true);
@@ -38,6 +54,14 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           setLoading(false);
           return;
         }
+        
+        // Final validation before submission
+        if (data.username.includes(' ')) {
+          setError('Username cannot contain spaces');
+          setLoading(false);
+          return;
+        }
+        
         response = await register(data.username, data.email, data.password);
       }
 
@@ -71,13 +95,27 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                   Nome de usuário
                 </label>
                 <input
-                  {...formRegister('username', { required: !isLogin })}
+                  {...formRegister('username', { 
+                    required: !isLogin,
+                    validate: (value) => {
+                      if (!value) return 'Username is required';
+                      if (value.includes(' ')) return 'Username cannot contain spaces';
+                      if (value.length < 3) return 'Username must be at least 3 characters long';
+                      if (value.length > 20) return 'Username must be less than 20 characters';
+                      if (!/^[a-zA-Z0-9_-]+$/.test(value)) return 'Username can only contain letters, numbers, underscores and hyphens';
+                      return true;
+                    }
+                  })}
                   type="text"
-                  className="input-field"
+                  className={`input-field ${usernameValidationError ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Digite seu nome de usuário"
+                  onChange={handleUsernameChange}
+                  value={watchedUsername || ''}
                 />
-                {errors.username && (
-                  <p className="mt-1 text-sm text-red-600">Nome de usuário é obrigatório</p>
+                {(errors.username || usernameValidationError) && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {usernameValidationError || errors.username?.message}
+                  </p>
                 )}
               </div>
             )}
@@ -120,8 +158,8 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           <div>
             <button
               type="submit"
-              disabled={loading}
-              className="btn-primary w-full"
+              disabled={loading || (!!usernameValidationError && !isLogin)}
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Cadastrar')}
             </button>
@@ -130,7 +168,11 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+                clearUsernameError();
+              }}
               className="text-primary-600 hover:text-primary-500"
             >
               {isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre'}

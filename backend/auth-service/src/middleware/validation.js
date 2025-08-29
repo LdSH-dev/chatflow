@@ -1,7 +1,12 @@
 const Joi = require('joi');
 
 const registerSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).required(),
+  username: Joi.string().pattern(/^[a-zA-Z0-9_-]+$/).min(3).max(20).required()
+    .messages({
+      'string.pattern.base': 'Username can only contain letters, numbers, underscores and hyphens',
+      'string.min': 'Username must be at least 3 characters long',
+      'string.max': 'Username must be less than 20 characters'
+    }),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required()
 });
