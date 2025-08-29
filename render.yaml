@@ -58,7 +58,6 @@ services:
         fromService:
           type: web
           name: chatflow-auth-service
-          property: envVar
           envVarKey: JWT_SECRET
       - key: AUTH_SERVICE_URL
         fromService:
