@@ -16,6 +16,8 @@ class DeliveryService {
     await subscribeToChannel('user:disconnected', this.handleUserDisconnected.bind(this));
     
     console.log('Delivery service initialized and listening for events');
+    console.log('Service instance ID:', process.env.RENDER_INSTANCE_ID || 'local');
+    console.log('Service started at:', new Date().toISOString());
   }
 
   /**
@@ -25,6 +27,22 @@ class DeliveryService {
     console.log('Processing message created event:', data);
     
     const { receiverId, messageId, senderId, content, messageType, createdAt } = data;
+    
+    // Implementar deduplicação para evitar processamento duplicado
+    const { getClient } = require('../utils/redis');
+    const redisClient = getClient();
+    
+    const processedKey = `processed:${messageId}`;
+    const alreadyProcessed = await redisClient.get(processedKey);
+    
+    if (alreadyProcessed) {
+      console.log(`Message ${messageId} already processed, skipping to avoid duplication`);
+      return;
+    }
+    
+    // Marcar como processado por 60 segundos
+    await redisClient.set(processedKey, 'true', 'EX', 60);
+    console.log(`Message ${messageId} marked as processed`);
     
     // Send message to receiver
     const receiverConnectionInfo = await getUserConnection(receiverId);
