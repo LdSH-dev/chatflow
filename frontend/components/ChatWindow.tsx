@@ -25,11 +25,15 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
   const { user } = useAuth();
 
   const handleNewMessage = (socketMessage: SocketMessage) => {
-    if (socketMessage.senderId === receiverId || socketMessage.senderId === user?.id) {
+    // Verifica se a mensagem é relevante para esta conversa
+    const isFromReceiver = socketMessage.senderId === receiverId;
+    const isFromCurrentUser = socketMessage.senderId === user?.id;
+    
+    if (isFromReceiver || isFromCurrentUser) {
       const newMessage: Message = {
         _id: socketMessage.messageId,
         senderId: socketMessage.senderId,
-        receiverId: socketMessage.senderId === user?.id ? receiverId : user?.id || 0,
+        receiverId: isFromCurrentUser ? receiverId : user?.id || 0,
         content: socketMessage.content,
         messageType: socketMessage.messageType,
         delivered: true,
@@ -38,7 +42,23 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         updatedAt: socketMessage.createdAt
       };
       
-      setMessages(prev => [...prev, newMessage]);
+      console.log('Adding new message to conversation:', {
+        messageId: socketMessage.messageId,
+        senderId: socketMessage.senderId,
+        receiverId: newMessage.receiverId,
+        isFromCurrentUser,
+        isFromReceiver
+      });
+      
+      setMessages(prev => {
+        // Verifica se a mensagem já existe para evitar duplicatas
+        const messageExists = prev.some(msg => msg._id === socketMessage.messageId);
+        if (messageExists) {
+          console.log('Message already exists, skipping:', socketMessage.messageId);
+          return prev;
+        }
+        return [...prev, newMessage];
+      });
     }
   };
 

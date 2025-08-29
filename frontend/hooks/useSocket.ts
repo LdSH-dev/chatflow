@@ -28,7 +28,10 @@ export function useSocket({
       
       if (onNewMessage) {
         console.log('Registering new_message event handler');
-        socketRef.current.on('new_message', onNewMessage);
+        socketRef.current.on('new_message', (data) => {
+          console.log('Received new_message event:', data);
+          onNewMessage(data);
+        });
       }
       
       if (onUserStatus) {

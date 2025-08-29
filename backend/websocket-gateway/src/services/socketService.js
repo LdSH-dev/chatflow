@@ -6,8 +6,9 @@ class SocketService {
   constructor(server) {
     this.io = new Server(server, {
       cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+        origin: ["https://chatflow-tau.vercel.app", "http://localhost:3000"],
+        methods: ["GET", "POST"],
+        credentials: true
       }
     });
     
@@ -33,7 +34,7 @@ class SocketService {
   /**
    * Handle new socket connection
    */
-  handleConnection(socket) {
+  async handleConnection(socket) {
     const user = socket.user;
     console.log(`User ${user.username} (${user.id}) connected`);
     
@@ -45,23 +46,29 @@ class SocketService {
     
     socket.join(`user:${user.id}`);
     
-    publishEvent('user:connected', {
+    // Salvar informações de conexão no Redis
+    const { publishEvent } = require('../utils/redis');
+    await publishEvent('user:connected', {
       userId: user.id,
       socketId: socket.id,
-      username: user.username
+      username: user.username,
+      connected: true,
+      connectedAt: new Date()
     });
     
     this.setupSocketHandlers(socket);
     
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
       console.log(`User ${user.username} (${user.id}) disconnected`);
       
       this.connectedUsers.delete(user.id);
       
-      publishEvent('user:disconnected', {
+      await publishEvent('user:disconnected', {
         userId: user.id,
         socketId: socket.id,
-        username: user.username
+        username: user.username,
+        connected: false,
+        disconnectedAt: new Date()
       });
     });
   }

@@ -12,6 +12,8 @@ class DeliveryService {
     await subscribeToChannel('message:created', this.handleMessageCreated.bind(this));
     await subscribeToChannel('message:delivered', this.handleMessageDelivered.bind(this));
     await subscribeToChannel('message:read', this.handleMessageRead.bind(this));
+    await subscribeToChannel('user:connected', this.handleUserConnected.bind(this));
+    await subscribeToChannel('user:disconnected', this.handleUserDisconnected.bind(this));
     
     console.log('Delivery service initialized and listening for events');
   }
@@ -55,6 +57,7 @@ class DeliveryService {
     const senderConnectionInfo = await getUserConnection(senderId);
     
     if (senderConnectionInfo && senderConnectionInfo.connected) {
+      console.log(`Sender ${senderId} is connected, sending real-time update`);
       await publishEvent('websocket:message', {
         type: 'new_message',
         receiverId: senderId, // Send to sender
@@ -68,6 +71,8 @@ class DeliveryService {
       });
       
       console.log(`Message ${messageId} delivered to sender ${senderId} for real-time update`);
+    } else {
+      console.log(`Sender ${senderId} is not connected, skipping real-time update`);
     }
   }
 
@@ -108,20 +113,45 @@ class DeliveryService {
   /**
    * Handle user connection event
    */
-  async handleUserConnected(userId) {
-    console.log(`User ${userId} connected, checking for queued messages`);
+  async handleUserConnected(data) {
+    const { userId, socketId, username, connected, connectedAt } = data;
+    console.log(`User ${username} (${userId}) connected with socket ${socketId}`);
     
-    await publishEvent('message:check_queue', {
-      userId,
-      connectedAt: new Date()
-    });
+    // Salvar informações de conexão no Redis
+    const { getClient } = require('../utils/redis');
+    const redisClient = getClient();
+    
+    try {
+      await redisClient.set(`user:${userId}:connection`, JSON.stringify({
+        socketId,
+        username,
+        connected: true,
+        connectedAt
+      }), 'EX', 3600); // Expira em 1 hora
+      
+      console.log(`User ${userId} connection info saved to Redis`);
+    } catch (error) {
+      console.error('Error saving user connection to Redis:', error);
+    }
   }
 
   /**
    * Handle user disconnection event
    */
-  async handleUserDisconnected(userId) {
-    console.log(`User ${userId} disconnected`);
+  async handleUserDisconnected(data) {
+    const { userId, socketId, username, connected, disconnectedAt } = data;
+    console.log(`User ${username} (${userId}) disconnected from socket ${socketId}`);
+    
+    // Remover informações de conexão do Redis
+    const { getClient } = require('../utils/redis');
+    const redisClient = getClient();
+    
+    try {
+      await redisClient.del(`user:${userId}:connection`);
+      console.log(`User ${userId} connection info removed from Redis`);
+    } catch (error) {
+      console.error('Error removing user connection from Redis:', error);
+    }
   }
 }
 
