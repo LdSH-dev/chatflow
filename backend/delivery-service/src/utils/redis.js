@@ -54,8 +54,20 @@ async function publishEvent(channel, data) {
  */
 async function getUserConnection(userId) {
   try {
-    const connectionInfo = await redisClient.get(`user:${userId}:connection`);
-    return connectionInfo ? JSON.parse(connectionInfo) : null;
+    const key = `user:${userId}:connection`;
+    console.log(`Getting connection info for user ${userId} with key: ${key}`);
+    
+    const connectionInfo = await redisClient.get(key);
+    console.log(`Raw connection info for user ${userId}:`, connectionInfo);
+    
+    if (connectionInfo) {
+      const parsed = JSON.parse(connectionInfo);
+      console.log(`Parsed connection info for user ${userId}:`, parsed);
+      return parsed;
+    } else {
+      console.log(`No connection info found for user ${userId}`);
+      return null;
+    }
   } catch (error) {
     console.error('Error getting user connection:', error);
     return null;

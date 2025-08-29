@@ -39,6 +39,7 @@ export default function MessageInput({ receiverId, onMessageSent }: MessageInput
     
     if (!message.trim()) return;
     
+    // Apenas envia a mensagem via WebSocket - não adiciona localmente
     sendMessage(receiverId, message.trim());
     setMessage('');
     
@@ -51,7 +52,7 @@ export default function MessageInput({ receiverId, onMessageSent }: MessageInput
       clearTimeout(typingTimeoutRef.current);
     }
     
-    onMessageSent?.();
+    // Não chama onMessageSent aqui - deixar o WebSocket fazer isso
   };
 
   useEffect(() => {

@@ -28,6 +28,7 @@ class DeliveryService {
     
     // Send message to receiver
     const receiverConnectionInfo = await getUserConnection(receiverId);
+    console.log(`Receiver ${receiverId} connection info:`, receiverConnectionInfo);
     
     if (receiverConnectionInfo && receiverConnectionInfo.connected) {
       await publishEvent('websocket:message', {
@@ -55,6 +56,7 @@ class DeliveryService {
 
     // Send message to sender as well (for real-time update)
     const senderConnectionInfo = await getUserConnection(senderId);
+    console.log(`Sender ${senderId} connection info:`, senderConnectionInfo);
     
     if (senderConnectionInfo && senderConnectionInfo.connected) {
       console.log(`Sender ${senderId} is connected, sending real-time update`);

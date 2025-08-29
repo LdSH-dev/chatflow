@@ -59,6 +59,11 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         }
         return [...prev, newMessage];
       });
+      
+      // Scroll para a nova mensagem
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
   };
 
