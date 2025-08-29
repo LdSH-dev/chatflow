@@ -2,7 +2,7 @@
 
 import { Message } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,10 +14,10 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
     try {
       return formatDistanceToNow(new Date(dateString), { 
         addSuffix: true,
-        locale: ptBR 
+        locale: enUS 
       });
     } catch {
-      return 'agora';
+      return 'now';
     }
   };
 

@@ -84,7 +84,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Carregando...</div>
+        <div className="text-lg">Loading...</div>
       </div>
     );
   }
@@ -110,12 +110,12 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">ChatFlow</h1>
-                <p className="text-sm text-gray-500">Olá, {user?.username}!</p>
+                <p className="text-sm text-gray-500">Hello, {user?.username}!</p>
               </div>
               <button
                 onClick={logout}
                 className="text-gray-400 hover:text-gray-600"
-                title="Sair"
+                title="Logout"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -126,15 +126,15 @@ export default function Home() {
           
           <div className="flex-1 overflow-y-auto">
             <div className="p-4">
-              <h2 className="text-sm font-medium text-gray-900 mb-3">Usuários Disponíveis</h2>
+              <h2 className="text-sm font-medium text-gray-900 mb-3">Available Users</h2>
               {loadingUsers ? (
                 <div className="flex justify-center py-4">
-                  <div className="text-sm text-gray-500">Carregando usuários...</div>
+                  <div className="text-sm text-gray-500">Loading users...</div>
                 </div>
               ) : availableUsers.length === 0 ? (
                 <div className="text-center py-4">
-                  <div className="text-sm text-gray-500">Nenhum usuário encontrado</div>
-                  <div className="text-xs text-gray-400 mt-1">Cadastre mais usuários para conversar</div>
+                  <div className="text-sm text-gray-500">No users found</div>
+                  <div className="text-xs text-gray-400 mt-1">Register more users to chat</div>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -193,8 +193,8 @@ export default function Home() {
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Nenhuma conversa selecionada</h3>
-                <p className="mt-1 text-sm text-gray-500">Selecione um usuário na barra lateral para começar a conversar.</p>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No conversation selected</h3>
+                <p className="mt-1 text-sm text-gray-500">Select a user from the sidebar to start chatting.</p>
               </div>
             </div>
           )}

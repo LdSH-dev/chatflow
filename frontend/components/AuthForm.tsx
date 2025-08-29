@@ -83,7 +83,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
+            {isLogin ? 'Sign in to your account' : 'Create your account'}
           </h2>
         </div>
         
@@ -92,7 +92,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
             {!isLogin && (
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                  Nome de usuário
+                  Username
                 </label>
                 <input
                   {...formRegister('username', { 
@@ -108,7 +108,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                   })}
                   type="text"
                   className={`input-field ${usernameValidationError ? 'border-red-500 focus:ring-red-500' : ''}`}
-                  placeholder="Digite seu nome de usuário"
+                  placeholder="Enter your username"
                   onChange={handleUsernameChange}
                   value={watchedUsername || ''}
                 />
@@ -128,25 +128,25 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                 {...formRegister('email', { required: true, pattern: /^\S+@\S+$/i })}
                 type="email"
                 className="input-field"
-                placeholder="Digite seu email"
+                placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">Email válido é obrigatório</p>
+                <p className="mt-1 text-sm text-red-600">Valid email is required</p>
               )}
             </div>
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Senha
+                Password
               </label>
               <input
                 {...formRegister('password', { required: true, minLength: 6 })}
                 type="password"
                 className="input-field"
-                placeholder="Digite sua senha"
+                placeholder="Enter your password"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">Senha deve ter pelo menos 6 caracteres</p>
+                <p className="mt-1 text-sm text-red-600">Password must be at least 6 characters long</p>
               )}
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
               disabled={loading || (!!usernameValidationError && !isLogin)}
               className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Cadastrar')}
+              {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Sign Up')}
             </button>
           </div>
 
@@ -175,7 +175,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
               }}
               className="text-primary-600 hover:text-primary-500"
             >
-              {isLogin ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre'}
+              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </button>
           </div>
         </form>

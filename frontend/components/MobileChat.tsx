@@ -94,13 +94,13 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
             )}
             <div>
               <h1 className="text-lg font-semibold text-gray-900">ChatFlow</h1>
-              <p className="text-sm text-gray-500">Olá, {user?.username}!</p>
+              <p className="text-sm text-gray-500">Hello, {user?.username}!</p>
             </div>
           </div>
           <button
             onClick={onLogout}
             className="text-gray-400 hover:text-gray-600 p-2"
-            title="Sair"
+            title="Logout"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
@@ -114,15 +114,15 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
         {activeTab === 'users' ? (
           <div className="h-full bg-white">
             <div className="p-4">
-              <h2 className="text-sm font-medium text-gray-900 mb-4">Usuários Disponíveis</h2>
+              <h2 className="text-sm font-medium text-gray-900 mb-4">Available Users</h2>
               {loadingUsers ? (
                 <div className="flex justify-center py-8">
-                  <div className="text-sm text-gray-500">Carregando usuários...</div>
+                  <div className="text-sm text-gray-500">Loading users...</div>
                 </div>
               ) : availableUsers.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="text-sm text-gray-500">Nenhum usuário encontrado</div>
-                  <div className="text-xs text-gray-400 mt-1">Cadastre mais usuários para conversar</div>
+                  <div className="text-sm text-gray-500">No users found</div>
+                  <div className="text-xs text-gray-400 mt-1">Register more users to chat</div>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -177,8 +177,8 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
                   <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">Nenhuma conversa selecionada</h3>
-                  <p className="mt-1 text-sm text-gray-500">Selecione um usuário para começar a conversar.</p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No conversation selected</h3>
+                  <p className="mt-1 text-sm text-gray-500">Select a user to start chatting.</p>
                 </div>
               </div>
             )}
@@ -200,7 +200,7 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
             <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span className="text-xs">Usuários</span>
+            <span className="text-xs">Users</span>
           </button>
           
           <button

@@ -25,7 +25,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
   const { user } = useAuth();
 
   const handleNewMessage = (socketMessage: SocketMessage) => {
-    // Verifica se a mensagem é relevante para esta conversa
+    // Check if the message is relevant for this conversation
     const isFromReceiver = socketMessage.senderId === receiverId;
     const isFromCurrentUser = socketMessage.senderId === user?.id;
     
@@ -51,7 +51,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
       });
       
       setMessages(prev => {
-        // Verifica se a mensagem já existe para evitar duplicatas
+        // Check if the message already exists to avoid duplicates
         const messageExists = prev.some(msg => msg._id === socketMessage.messageId);
         if (messageExists) {
           console.log('Message already exists, skipping:', socketMessage.messageId);
@@ -60,7 +60,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         return [...prev, newMessage];
       });
       
-      // Scroll para a nova mensagem
+      // Scroll to the new message
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -146,7 +146,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-gray-500">Carregando conversa...</div>
+        <div className="text-gray-500">Loading conversation...</div>
       </div>
     );
   }
@@ -168,7 +168,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50 min-h-0">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
-            Nenhuma mensagem ainda. Comece uma conversa!
+            No messages yet. Start a conversation!
           </div>
         ) : (
           <>
@@ -184,7 +184,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
               <div className="flex justify-start mb-4">
                 <div className="message-bubble message-received">
                   <div className="flex items-center space-x-1">
-                    <span className="text-sm text-gray-500">{typingUser} está digitando</span>
+                    <span className="text-sm text-gray-500">{typingUser} is typing</span>
                     <div className="flex space-x-1">
                       <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
                       <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

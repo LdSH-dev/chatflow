@@ -39,7 +39,7 @@ export default function MessageInput({ receiverId, onMessageSent }: MessageInput
     
     if (!message.trim()) return;
     
-    // Apenas envia a mensagem via WebSocket - não adiciona localmente
+    // Only send the message via WebSocket - don't add locally
     sendMessage(receiverId, message.trim());
     setMessage('');
     
@@ -52,7 +52,7 @@ export default function MessageInput({ receiverId, onMessageSent }: MessageInput
       clearTimeout(typingTimeoutRef.current);
     }
     
-    // Não chama onMessageSent aqui - deixar o WebSocket fazer isso
+    // Don't call onMessageSent here - let WebSocket handle it
   };
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function MessageInput({ receiverId, onMessageSent }: MessageInput
         type="text"
         value={message}
         onChange={(e) => handleTyping(e.target.value)}
-        placeholder="Digite sua mensagem..."
+        placeholder="Type your message..."
         className="flex-1 input-field text-sm sm:text-base"
         maxLength={1000}
       />
