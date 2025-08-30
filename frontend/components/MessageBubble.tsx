@@ -113,15 +113,17 @@ export default function MessageBubble({ message, isOwn, onReply, repliedMessage 
 
         {/* Message content */}
         {message.content && (
-          <p className="text-sm sm:text-base">{message.content}</p>
+          <p className="text-sm sm:text-base break-words">{message.content}</p>
         )}
 
         {/* Media preview */}
         {message.media && message.media.url && (
-          <MediaPreview media={message.media} isOwn={isOwn} />
+          <div className="mt-2">
+            <MediaPreview media={message.media} isOwn={isOwn} />
+          </div>
         )}
 
-        <div className="flex items-center justify-between mt-1">
+        <div className="flex items-center justify-between mt-2">
           <span className={`text-xs ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
             {formatTime(message.createdAt)}
           </span>

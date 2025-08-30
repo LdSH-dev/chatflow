@@ -6,6 +6,8 @@ import { getUsers } from '@/lib/auth';
 import { User, UserStatus } from '@/types';
 import { useSocket } from '@/hooks/useSocket';
 import { requestPresence } from '@/lib/socket';
+import { useKeyboard } from '@/hooks/useKeyboard';
+import AuthForm from './AuthForm';
 import ChatWindow from './ChatWindow';
 
 type TabType = 'users' | 'chat';
@@ -21,6 +23,7 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userStatuses, setUserStatuses] = useState<Map<number, boolean>>(new Map());
   const [activeTab, setActiveTab] = useState<TabType>('users');
+  const { isKeyboardOpen } = useKeyboard();
 
   // Handle user status updates
   const handleUserStatus = (status: UserStatus) => {
@@ -77,40 +80,42 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
   const selectedUser = availableUsers.find(u => u.id === selectedUserId);
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {activeTab === 'chat' && (
-              <button
-                onClick={handleBackToUsers}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
-            <div>
-              <h1 className="text-lg font-semibold text-gray-900">ChatFlow</h1>
-              <p className="text-sm text-gray-500">Hello, {user?.username}!</p>
+    <div className={`mobile-container bg-gray-100 ${isKeyboardOpen ? 'keyboard-open' : ''}`}>
+      {/* Header - Hide when keyboard is open in chat mode */}
+      {(!isKeyboardOpen || activeTab === 'users') && (
+        <div className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {activeTab === 'chat' && (
+                <button
+                  onClick={handleBackToUsers}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">ChatFlow</h1>
+                <p className="text-sm text-gray-500">Hello, {user?.username}!</p>
+              </div>
             </div>
+            <button
+              onClick={onLogout}
+              className="text-gray-400 hover:text-gray-600 p-2"
+              title="Logout"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={onLogout}
-            className="text-gray-400 hover:text-gray-600 p-2"
-            title="Logout"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
-            </svg>
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="mobile-content">
         {activeTab === 'users' ? (
           <div className="h-full bg-white">
             <div className="p-4">
@@ -186,39 +191,35 @@ export default function MobileChat({ onLogout }: MobileChatProps) {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex justify-around">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`flex flex-col items-center py-2 px-4 rounded-lg transition-colors ${
-              activeTab === 'users' 
-                ? 'text-primary-600 bg-primary-50' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span className="text-xs">Users</span>
-          </button>
-          
-          <button
-            onClick={() => selectedUserId && setActiveTab('chat')}
-            className={`flex flex-col items-center py-2 px-4 rounded-lg transition-colors ${
-              activeTab === 'chat' 
-                ? 'text-primary-600 bg-primary-50' 
-                : 'text-gray-500 hover:text-gray-700'
-            } ${!selectedUserId ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={!selectedUserId}
-          >
-            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            <span className="text-xs">Chat</span>
-          </button>
+      {/* Bottom Navigation - Hide when keyboard is open */}
+      {!isKeyboardOpen && (
+        <div className="bg-white border-t border-gray-200 flex-shrink-0">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`flex-1 flex flex-col items-center py-3 px-4 ${
+                activeTab === 'users' ? 'text-primary-600 bg-primary-50' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="text-xs font-medium">Users</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`flex-1 flex flex-col items-center py-3 px-4 ${
+                activeTab === 'chat' ? 'text-primary-600 bg-primary-50' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              <span className="text-xs font-medium">Chat</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 } 

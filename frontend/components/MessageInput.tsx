@@ -185,18 +185,18 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
   }, [receiverId, isTyping]);
 
   return (
-    <div className="border-t bg-white">
+    <div className="border-t bg-white keyboard-safe">
       {/* Reply preview */}
       {replyingTo && (
-        <div className="p-3 border-b bg-gray-50">
+        <div className="p-2 sm:p-3 border-b bg-gray-50 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="text-xs text-gray-500 mb-1">Replying to</div>
-              <div className="text-sm text-gray-700 truncate">{replyingTo.content}</div>
+              <div className="text-xs sm:text-sm text-gray-700 truncate">{replyingTo.content}</div>
             </div>
             <button
               onClick={onClearReply}
-              className="ml-2 p-1 text-gray-400 hover:text-gray-600"
+              className="ml-2 p-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -208,7 +208,7 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
 
       {/* File upload area */}
       {showFileUpload && (
-        <div className="p-3 border-b bg-gray-50">
+        <div className="p-2 sm:p-3 border-b bg-gray-50 flex-shrink-0">
           <FileUpload
             onFileSelect={handleFileSelect}
             onUploadProgress={setUploadProgress}
@@ -233,12 +233,12 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex items-center space-x-2 p-3 sm:p-4">
+      <form onSubmit={handleSubmit} className="flex items-center space-x-2 p-2 sm:p-3 sm:p-4 flex-shrink-0">
         <button
           type="button"
           onClick={toggleFileUpload}
           disabled={uploading}
-          className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           title={!isAuthenticated() ? "Faça login para enviar arquivos" : "Anexar arquivo"}
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,7 +252,7 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
           value={message}
           onChange={(e) => handleTyping(e.target.value)}
           placeholder={replyingTo ? "Type your reply..." : "Type your message..."}
-          className="flex-1 input-field text-sm sm:text-base"
+          className="flex-1 input-field text-sm sm:text-base min-w-0"
           maxLength={1000}
           disabled={uploading}
         />
@@ -260,7 +260,7 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
         <button
           type="submit"
           disabled={(!message.trim() && !attachedFile) || uploading}
-          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed p-2 sm:p-3"
+          className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed p-2 flex-shrink-0"
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
