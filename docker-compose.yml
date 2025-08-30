@@ -66,6 +66,9 @@ services:
       - PORT=3002
       - MONGODB_URL=mongodb://mongodb:27017/chatflow
       - REDIS_URL=redis://redis:6379
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     depends_on:
       - mongodb
       - redis

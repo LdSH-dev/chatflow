@@ -8,6 +8,7 @@ Event-driven real-time chat application with microservices architecture.
 - **Backend**: Node.js microservices with Socket.IO (Render deployment)
 - **Event Bus**: Redis Pub/Sub for inter-service communication
 - **Databases**: MongoDB (messages) + PostgreSQL (users/metadata)
+- **Storage**: Cloudinary (free tier - 25GB) for media files
 - **Containers**: Docker & Docker Compose for local development
 
 ## 🚀 Quick Start
@@ -81,6 +82,42 @@ make down
 - ✅ Event-driven microservices architecture
 - ✅ Docker containerization
 - ✅ Horizontal scaling ready
+- ✅ **Media file upload** (images, videos, documents)
+- ✅ **Drag & drop file upload**
+- ✅ **Media preview** with thumbnails and full-screen view
+- ✅ **File validation** (type, size limits)
+- ✅ **Progress indicators** during upload
+
+## 📁 Media Upload Features
+
+### Supported File Types
+- **Images**: JPEG, JPG, PNG, GIF, WebP
+- **Videos**: MP4, WebM, OGG, AVI, MOV
+- **Documents**: PDF, DOC, DOCX, XLS, XLSX, TXT, CSV
+
+### File Limits
+- Maximum file size: 50MB per file
+- Storage: 25GB free (Cloudinary)
+
+### Features
+- Drag & drop upload interface
+- File type validation
+- Progress bar during upload
+- Thumbnail generation for images/videos
+- Full-screen image viewer
+- Video player with controls
+- Document download links
+- Reply support for media messages
+
+### Setup
+1. Create free Cloudinary account
+2. Add credentials to `.env`:
+   ```env
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   ```
+3. See [Media Upload Setup Guide](docs/media-upload-setup.md) for detailed instructions
 
 ## 🛠️ Development
 
@@ -103,6 +140,11 @@ REDIS_URL=redis://redis:6379
 # JWT Secret
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 
+# Cloudinary (Free tier - 25GB storage)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
 # Frontend
 NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:4000
 NEXT_PUBLIC_API_URL=http://localhost:3001
@@ -117,6 +159,7 @@ NEXT_PUBLIC_MESSAGE_API_URL=http://localhost:3002
 4. **Register an account**: Register an account using the WebApp
 6. **See real users**: Users will load from database in sidebar
 7. **Chat**: Select users from sidebar and start messaging
+8. **Upload media**: Click the attachment icon to send files
 
 ### Service Health Checks
 
@@ -149,6 +192,11 @@ curl http://localhost:4000/health  # WebSocket Gateway
 - **PostgreSQL**: Use Render PostgreSQL
 - **Redis**: Use Render Redis
 
+### Media Storage Setup
+- **Cloudinary**: Free tier with 25GB storage
+- Configure environment variables in Render dashboard
+- See [Media Upload Setup Guide](docs/media-upload-setup.md) for details
+
 ## 🔧 Troubleshooting
 
 ### Common Issues
@@ -173,6 +221,12 @@ docker compose restart [service-name]
 **Database connection errors:**
 - Wait for databases to fully initialize (30-60 seconds)
 - Check database credentials in docker-compose.yml
+
+**Media upload issues:**
+- Verify Cloudinary credentials in environment variables
+- Check file size (max 50MB)
+- Ensure file type is supported
+- See [Media Upload Setup Guide](docs/media-upload-setup.md) for troubleshooting
 
 **Docker Compose command not found:**
 ```bash
@@ -231,6 +285,7 @@ The architecture supports horizontal scaling:
 - **Delivery Service**: Event-driven, scales automatically
 - **Presence Service**: Redis-backed, horizontally scalable
 - **Databases**: MongoDB sharding, PostgreSQL read replicas
+- **Media Storage**: Cloudinary scales automatically
 
 ## 🔒 Security Features
 
@@ -240,6 +295,8 @@ The architecture supports horizontal scaling:
 - Rate limiting
 - Input validation
 - SQL injection prevention
+- File type validation
+- File size limits
 
 ## 📝 API Documentation
 
@@ -249,7 +306,8 @@ The architecture supports horizontal scaling:
 - `GET /api/auth/profile` - Get user profile
 
 ### Message Endpoints
-- `POST /api/messages/send` - Send message
+- `POST /api/messages/send` - Send text message
+- `POST /api/messages/upload-media` - Upload media file
 - `GET /api/messages/conversation/:userId` - Get conversation
 - `PUT /api/messages/:messageId/delivered` - Mark as delivered
 - `PUT /api/messages/:messageId/read` - Mark as read

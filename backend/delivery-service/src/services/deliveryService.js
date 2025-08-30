@@ -26,7 +26,7 @@ class DeliveryService {
   async handleMessageCreated(data) {
     console.log('Processing message created event:', data);
     
-    const { receiverId, messageId, senderId, content, messageType, repliedMessageId, createdAt } = data;
+    const { receiverId, messageId, senderId, content, messageType, repliedMessageId, createdAt, media } = data;
     
     // Implementar deduplicação para evitar processamento duplicado
     const { getClient } = require('../utils/redis');
@@ -44,6 +44,22 @@ class DeliveryService {
     await redisClient.set(processedKey, 'true', 'EX', 60);
     console.log(`Message ${messageId} marked as processed`);
     
+    // Prepare message data
+    const messageData = {
+      messageId,
+      senderId,
+      content,
+      messageType,
+      repliedMessageId,
+      createdAt
+    };
+
+    // Include media data if present
+    if (media) {
+      messageData.media = media;
+      console.log(`Including media data for message ${messageId}:`, media);
+    }
+    
     // Send message to receiver
     const receiverConnectionInfo = await getUserConnection(receiverId);
     console.log(`Receiver ${receiverId} connection info:`, receiverConnectionInfo);
@@ -52,14 +68,7 @@ class DeliveryService {
       await publishEvent('websocket:message', {
         type: 'new_message',
         receiverId,
-        data: {
-          messageId,
-          senderId,
-          content,
-          messageType,
-          repliedMessageId,
-          createdAt
-        }
+        data: messageData
       });
       
       console.log(`Message ${messageId} delivered to receiver ${receiverId}`);
@@ -82,14 +91,7 @@ class DeliveryService {
       await publishEvent('websocket:message', {
         type: 'new_message',
         receiverId: senderId, // Send to sender
-        data: {
-          messageId,
-          senderId,
-          content,
-          messageType,
-          repliedMessageId,
-          createdAt
-        }
+        data: messageData
       });
       
       console.log(`Message ${messageId} delivered to sender ${senderId} for real-time update`);

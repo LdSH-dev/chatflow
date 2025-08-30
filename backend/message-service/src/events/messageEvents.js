@@ -10,7 +10,7 @@ const EVENTS = {
  * Emit message created event
  */
 async function emitMessageCreated(message) {
-  await publishEvent(EVENTS.MESSAGE_CREATED, {
+  const eventData = {
     messageId: message._id,
     senderId: message.senderId,
     receiverId: message.receiverId,
@@ -18,7 +18,14 @@ async function emitMessageCreated(message) {
     messageType: message.messageType,
     repliedMessageId: message.repliedMessageId,
     createdAt: message.createdAt
-  });
+  };
+
+  // Include media data if present
+  if (message.media) {
+    eventData.media = message.media;
+  }
+
+  await publishEvent(EVENTS.MESSAGE_CREATED, eventData);
 }
 
 /**

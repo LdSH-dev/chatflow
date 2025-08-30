@@ -64,6 +64,13 @@ services:
           type: web
           name: chatflow-auth-service
           property: host
+      # Cloudinary Configuration
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
 
   # Delivery Service
   - type: web
