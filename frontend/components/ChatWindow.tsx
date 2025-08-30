@@ -161,8 +161,8 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <div className="bg-white border-b p-3 sm:p-4 flex items-center justify-between">
+    <div className="flex-1 flex flex-col min-h-0 keyboard-safe">
+      <div className="bg-white border-b p-3 sm:p-4 flex items-center justify-between flex-shrink-0">
         <div>
           <h2 className="text-base sm:text-lg font-semibold text-gray-900">{receiverName}</h2>
           <div className="flex items-center space-x-2">
@@ -174,7 +174,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50 min-h-0">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50 min-h-0 -webkit-overflow-scrolling-touch">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
             No messages yet. Start a conversation!
@@ -211,12 +211,14 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         )}
       </div>
 
-      <MessageInput 
-        receiverId={receiverId}
-        onMessageSent={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
-        replyingTo={replyingTo}
-        onClearReply={clearReply}
-      />
+      <div className="mobile-input-container">
+        <MessageInput 
+          receiverId={receiverId}
+          onMessageSent={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          replyingTo={replyingTo}
+          onClearReply={clearReply}
+        />
+      </div>
     </div>
   );
 }

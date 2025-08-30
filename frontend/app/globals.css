@@ -5,6 +5,45 @@
 @layer base {
   html {
     font-family: system-ui, sans-serif;
+    /* Prevent zoom on input focus on iOS */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    /* Prevent body scroll when keyboard is open */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+    transform: translateZ(0);
+  }
+
+  /* iOS specific fixes */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      /* Prevent elastic scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    input, textarea {
+      /* Prevent zoom on iOS */
+      font-size: 16px !important;
+    }
+  }
+
+  /* Android specific fixes */
+  @media screen and (max-width: 767px) {
+    input, textarea {
+      /* Prevent zoom on Android */
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -19,6 +58,8 @@
   
   .input-field {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    /* Prevent zoom on focus */
+    font-size: 16px !important;
   }
   
   .message-bubble {
@@ -31,5 +72,175 @@
   
   .message-received {
     @apply bg-gray-200 text-gray-800;
+  }
+
+  /* Mobile keyboard handling */
+  .mobile-container {
+    @apply h-screen flex flex-col overflow-hidden;
+    /* Prevent body scroll when keyboard is open */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+
+  .mobile-content {
+    @apply flex-1 overflow-hidden;
+    /* Allow content to scroll within container */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-input-container {
+    @apply flex-shrink-0;
+    /* Keep input at bottom when keyboard is open */
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 10;
+  }
+
+  /* Media responsive classes */
+  .media-container {
+    @apply max-w-full overflow-hidden;
+  }
+
+  .media-image {
+    @apply max-w-full h-auto rounded-lg shadow-sm;
+  }
+
+  .media-video {
+    @apply max-w-full h-auto rounded-lg shadow-sm;
+  }
+
+  .media-document {
+    @apply flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg hover:bg-gray-50 transition-colors;
+  }
+
+  .media-icon {
+    @apply w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0;
+  }
+
+  .media-icon-large {
+    @apply w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0;
+  }
+
+  .media-text {
+    @apply text-xs sm:text-sm font-medium text-gray-900 truncate;
+  }
+
+  .media-subtext {
+    @apply text-xs text-gray-500;
+  }
+
+  /* File upload responsive classes */
+  .file-upload-area {
+    @apply border-2 border-dashed rounded-lg p-3 sm:p-6 text-center cursor-pointer transition-colors;
+  }
+
+  .file-upload-icon {
+    @apply w-6 h-6 sm:w-8 sm:h-8 text-gray-400;
+  }
+
+  .file-upload-text {
+    @apply text-xs sm:text-sm text-gray-600;
+  }
+
+  .file-upload-subtext {
+    @apply text-xs text-gray-500;
+  }
+
+  .file-preview {
+    @apply border rounded-lg p-3 sm:p-4 bg-gray-50;
+  }
+
+  .file-preview-content {
+    @apply flex items-center space-x-2 sm:space-x-3;
+  }
+
+  /* Modal responsive classes */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4;
+  }
+
+  .modal-content {
+    @apply relative max-w-4xl max-h-full;
+  }
+
+  .modal-close-button {
+    @apply absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-gray-300 p-2;
+  }
+
+  /* Keyboard handling utilities */
+  .keyboard-safe {
+    /* Prevent layout shifts when keyboard appears */
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .keyboard-fixed {
+    /* Keep element fixed when keyboard is open */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+
+  /* Keyboard open state */
+  .keyboard-open {
+    /* Adjust layout when keyboard is open */
+    height: 100vh;
+  }
+
+  .keyboard-open .mobile-content {
+    /* Allow content to scroll when keyboard is open */
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .keyboard-open .mobile-input-container {
+    /* Keep input at bottom when keyboard is open */
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 10;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* Prevent zoom on input focus for all devices */
+  @media screen and (max-width: 767px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="url"],
+    textarea {
+      font-size: 16px !important;
+      transform: translateZ(0);
+    }
+  }
+
+  /* iOS specific keyboard handling */
+  @supports (-webkit-touch-callout: none) {
+    .keyboard-open {
+      /* iOS specific adjustments */
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .keyboard-open .mobile-content {
+      /* iOS smooth scrolling */
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  /* Android specific keyboard handling */
+  @media screen and (max-width: 767px) and (-webkit-min-device-pixel-ratio: 1) {
+    .keyboard-open {
+      /* Android specific adjustments */
+      height: 100vh;
+    }
   }
 }
