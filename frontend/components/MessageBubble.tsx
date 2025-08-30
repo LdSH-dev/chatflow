@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Message } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import MediaPreview from './MediaPreview';
 
 interface MessageBubbleProps {
   message: Message;
@@ -110,7 +111,16 @@ export default function MessageBubble({ message, isOwn, onReply, repliedMessage 
           </div>
         )}
 
-        <p className="text-sm sm:text-base">{message.content}</p>
+        {/* Message content */}
+        {message.content && (
+          <p className="text-sm sm:text-base">{message.content}</p>
+        )}
+
+        {/* Media preview */}
+        {message.media && message.media.url && (
+          <MediaPreview media={message.media} isOwn={isOwn} />
+        )}
+
         <div className="flex items-center justify-between mt-1">
           <span className={`text-xs ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
             {formatTime(message.createdAt)}

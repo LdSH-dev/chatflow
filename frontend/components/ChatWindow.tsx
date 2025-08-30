@@ -38,6 +38,7 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
         receiverId: isFromCurrentUser ? receiverId : user?.id || 0,
         content: socketMessage.content,
         messageType: socketMessage.messageType,
+        media: socketMessage.media, // Include media data from WebSocket
         repliedMessageId: socketMessage.repliedMessageId,
         delivered: true,
         read: false,

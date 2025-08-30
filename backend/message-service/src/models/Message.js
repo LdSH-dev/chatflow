@@ -13,13 +13,27 @@ const messageSchema = new mongoose.Schema({
   },
   content: {
     type: String,
-    required: true,
+    required: function() {
+      // Content is required only if there's no media
+      return !this.media || !this.media.url;
+    },
     maxlength: 1000
   },
   messageType: {
     type: String,
-    enum: ['text', 'image', 'file'],
+    enum: ['text', 'image', 'video', 'document'],
     default: 'text'
+  },
+  // Media fields
+  media: {
+    url: String,
+    fileName: String,
+    fileType: String,
+    fileSize: Number,
+    thumbnail: String, // For videos and images
+    duration: Number, // For videos in seconds
+    width: Number, // For images and videos
+    height: Number // For images and videos
   },
   repliedMessageId: {
     type: String,
@@ -43,6 +57,14 @@ const messageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+});
+
+// Custom validation to ensure either content or media is present
+messageSchema.pre('validate', function(next) {
+  if (!this.content && (!this.media || !this.media.url)) {
+    this.invalidate('content', 'Message must have either content or media');
+  }
+  next();
 });
 
 messageSchema.index({ senderId: 1, receiverId: 1, createdAt: -1 });

@@ -82,13 +82,20 @@ class SocketService {
     socket.on('send_message', async (data) => {
       console.log(`Message from ${user.username}:`, data);
       
-      publishEvent('message:send', {
+      const messageData = {
         senderId: user.id,
         receiverId: data.receiverId,
         content: data.content,
         messageType: data.messageType || 'text',
         repliedMessageId: data.repliedMessageId
-      });
+      };
+
+      // Include media data if present
+      if (data.media) {
+        messageData.media = data.media;
+      }
+      
+      publishEvent('message:send', messageData);
     });
     
     socket.on('message_delivered', async (data) => {

@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Message } from '@/types';
+import { Message, UploadProgress } from '@/types';
 import { sendMessage, startTyping, stopTyping } from '@/lib/socket';
+import FileUpload from './FileUpload';
+import { getAuthToken, isAuthenticated } from '@/lib/auth';
 
 interface MessageInputProps {
   receiverId: number;
@@ -14,6 +16,10 @@ interface MessageInputProps {
 export default function MessageInput({ receiverId, onMessageSent, replyingTo, onClearReply }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -37,14 +43,20 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
     }, 1000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!message.trim()) return;
+    // Don't submit if there's no message and no file
+    if (!message.trim() && !attachedFile) return;
     
-    // Send the message via WebSocket with reply data
-    sendMessage(receiverId, message.trim(), 'text', replyingTo?._id);
-    setMessage('');
+    // If there's a file, upload it first
+    if (attachedFile) {
+      await handleFileUpload(attachedFile);
+    } else {
+      // Send text message only
+      sendMessage(receiverId, message.trim(), 'text', replyingTo?._id);
+      setMessage('');
+    }
     
     if (isTyping) {
       setIsTyping(false);
@@ -59,8 +71,106 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
     if (onClearReply) {
       onClearReply();
     }
-    
-    // Don't call onMessageSent here - let WebSocket handle it
+  };
+
+  const handleFileSelect = (file: File) => {
+    // Just attach the file, don't send it yet
+    setAttachedFile(file);
+  };
+
+  const handleFileRemove = () => {
+    setAttachedFile(null);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    // Check authentication first
+    if (!isAuthenticated()) {
+      alert('Você precisa estar logado para enviar arquivos. Por favor, faça login primeiro.');
+      setShowFileUpload(false);
+      setAttachedFile(null);
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress({ loaded: 0, total: file.size, percentage: 0 });
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('receiverId', receiverId.toString());
+      if (message.trim()) {
+        formData.append('content', message.trim());
+      }
+      if (replyingTo?._id) {
+        formData.append('repliedMessageId', replyingTo._id);
+      }
+
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error('Token de autenticação não encontrado. Por favor, faça login novamente.');
+      }
+
+      // Use the correct message service URL
+      const messageApiUrl = process.env.NEXT_PUBLIC_MESSAGE_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${messageApiUrl}/api/messages/upload-media`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Falha no upload do arquivo';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (parseError) {
+          console.error('Error parsing response:', parseError);
+          errorMessage = `Erro ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      
+      // Clear form
+      setMessage('');
+      setAttachedFile(null);
+      setShowFileUpload(false);
+      
+      // Clear reply state
+      if (onClearReply) {
+        onClearReply();
+      }
+
+      // Stop typing
+      if (isTyping) {
+        setIsTyping(false);
+        stopTyping(receiverId);
+      }
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Falha no upload do arquivo';
+      alert(`Erro: ${errorMessage}`);
+    } finally {
+      setUploading(false);
+      setUploadProgress(null);
+    }
+  };
+
+  const toggleFileUpload = () => {
+    // Check authentication before showing file upload
+    if (!isAuthenticated()) {
+      alert('Você precisa estar logado para enviar arquivos. Por favor, faça login primeiro.');
+      return;
+    }
+    setShowFileUpload(!showFileUpload);
   };
 
   useEffect(() => {
@@ -96,7 +206,46 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
         </div>
       )}
 
+      {/* File upload area */}
+      {showFileUpload && (
+        <div className="p-3 border-b bg-gray-50">
+          <FileUpload
+            onFileSelect={handleFileSelect}
+            onUploadProgress={setUploadProgress}
+            disabled={uploading}
+            selectedFile={attachedFile}
+            onRemoveFile={handleFileRemove}
+          />
+          {uploadProgress && (
+            <div className="mt-2">
+              <div className="flex justify-between text-xs text-gray-600 mb-1">
+                <span>Uploading...</span>
+                <span>{uploadProgress.percentage.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress.percentage}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex items-center space-x-2 p-3 sm:p-4">
+        <button
+          type="button"
+          onClick={toggleFileUpload}
+          disabled={uploading}
+          className="p-2 sm:p-3 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          title={!isAuthenticated() ? "Faça login para enviar arquivos" : "Anexar arquivo"}
+        >
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+          </svg>
+        </button>
+        
         <input
           ref={inputRef}
           type="text"
@@ -105,10 +254,12 @@ export default function MessageInput({ receiverId, onMessageSent, replyingTo, on
           placeholder={replyingTo ? "Type your reply..." : "Type your message..."}
           className="flex-1 input-field text-sm sm:text-base"
           maxLength={1000}
+          disabled={uploading}
         />
+        
         <button
           type="submit"
-          disabled={!message.trim()}
+          disabled={(!message.trim() && !attachedFile) || uploading}
           className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed p-2 sm:p-3"
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">

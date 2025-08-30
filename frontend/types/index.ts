@@ -5,12 +5,24 @@ export interface User {
   createdAt?: string;
 }
 
+export interface Media {
+  url: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  thumbnail?: string;
+  duration?: number;
+  width?: number;
+  height?: number;
+}
+
 export interface Message {
   _id: string;
   senderId: number;
   receiverId: number;
   content: string;
-  messageType: 'text' | 'image' | 'file';
+  messageType: 'text' | 'image' | 'video' | 'document';
+  media?: Media;
   repliedMessageId?: string;
   delivered: boolean;
   read: boolean;
@@ -37,7 +49,8 @@ export interface SocketMessage {
   messageId: string;
   senderId: number;
   content: string;
-  messageType: 'text' | 'image' | 'file';
+  messageType: 'text' | 'image' | 'video' | 'document';
+  media?: Media;
   repliedMessageId?: string;
   createdAt: string;
 }
@@ -47,4 +60,10 @@ export interface UserStatus {
   online: boolean;
   lastSeen?: string;
   connectedAt?: string;
+}
+
+export interface UploadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
 }
