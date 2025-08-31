@@ -161,16 +161,24 @@ class SocketService {
    * Handle websocket message event from Redis
    */
   handleWebSocketMessage(data) {
-    console.log('WebSocket message event:', data);
+    console.log('📡 WebSocket message event received:', data);
     
     const { type, receiverId, data: messageData } = data;
     
     if (type === 'new_message') {
+      console.log(`📤 Sending new_message to user:${receiverId}`, {
+        messageId: messageData.messageId,
+        senderId: messageData.senderId,
+        content: messageData.content?.substring(0, 50) + '...'
+      });
+      
       this.io.to(`user:${receiverId}`).emit('new_message', messageData);
+      
+      console.log(`✅ new_message sent to user:${receiverId}`);
     } else if (type === 'presence_response') {
-      console.log('Sending presence response to user:', receiverId, 'data:', messageData);
+      console.log('📤 Sending presence response to user:', receiverId, 'data:', messageData);
       this.io.to(`user:${receiverId}`).emit('presence_status', messageData);
-      console.log('Presence response sent');
+      console.log('✅ Presence response sent');
     }
   }
 

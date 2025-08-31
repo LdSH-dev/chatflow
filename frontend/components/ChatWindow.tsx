@@ -56,11 +56,19 @@ export default function ChatWindow({ receiverId, receiverName, receiverOnline: i
       
       setMessages(prev => {
         // Check if the message already exists to avoid duplicates
-        const messageExists = prev.some(msg => msg._id === socketMessage.messageId);
+        const messageExists = prev.some(msg => 
+          msg._id === socketMessage.messageId || 
+          (msg.content === socketMessage.content && 
+           msg.senderId === socketMessage.senderId && 
+           Math.abs(new Date(msg.createdAt).getTime() - new Date(socketMessage.createdAt).getTime()) < 5000) // 5 segundos de tolerância
+        );
+        
         if (messageExists) {
-          console.log('Message already exists, skipping:', socketMessage.messageId);
+          console.log('🚫 Message already exists, skipping:', socketMessage.messageId);
           return prev;
         }
+        
+        console.log('✅ Adding new message:', socketMessage.messageId);
         return [...prev, newMessage];
       });
       
