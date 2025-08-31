@@ -6,9 +6,29 @@ class SocketService {
   constructor(server) {
     this.io = new Server(server, {
       cors: {
-        origin: ["https://chatflow-tau.vercel.app", "http://localhost:3000"],
-        methods: ["GET", "POST"],
-        credentials: true
+        origin: [
+          "https://chatflow-tau.vercel.app", 
+          "http://localhost:3000",
+          "https://*.vercel.app", // Permitir qualquer subdomínio Vercel
+          "https://*.onrender.com", // Permitir qualquer subdomínio Render
+          /^https:\/\/.*\.vercel\.app$/, // Regex para domínios Vercel
+          /^https:\/\/.*\.onrender\.com$/ // Regex para domínios Render
+        ],
+        methods: ["GET", "POST", "OPTIONS"],
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"]
+      },
+      transports: ['websocket', 'polling'], // Adicionar polling como fallback
+      allowEIO3: true,
+      pingTimeout: 60000, // 60 segundos
+      pingInterval: 25000, // 25 segundos
+      upgradeTimeout: 30000, // 30 segundos
+      maxHttpBufferSize: 1e8, // 100MB
+      allowRequest: (req, callback) => {
+        // Log da origem para debug
+        console.log('WebSocket request from origin:', req.headers.origin);
+        // Permitir todas as origens em desenvolvimento/produção
+        callback(null, true);
       }
     });
     
